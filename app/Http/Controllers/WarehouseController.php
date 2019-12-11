@@ -226,12 +226,15 @@ class WarehouseController extends Controller
                     $where = array('status' => 'active');
                     break;
             }
+        }else{
+            $where = array('status' => 'active');
         }
 
         $whList = DB::connection('mysql')->table('warehouse')->where($where)->orderBy('name', 'asc')->get();
-    	
-    	$response = ['requester' => $requester, 'error' => false, 'data' => $whList];
-    	return response()->json($response, 200);
+        $response = ['requester' => $requester, 'error' => false, 'data' => $whList];
+        return response()->json($response, 200);
+
+        
     }
 
     public function clientlist(Request $request)
@@ -551,7 +554,6 @@ class WarehouseController extends Controller
         //unclosed receive check
         $exist = Movements::where(['sn' => $sn])
         ->where('sender_id', '>', 0)
-        ->whereNull('receiver_id')
         ->count();
         if ($exist > 0) {
             $response = ['requester' => $requester, 'error' => true, 'data' => 'failed to send, item not receive yet'];
@@ -620,7 +622,6 @@ class WarehouseController extends Controller
         $receiver_lng = $request->input('receiver_lng');
         $where = array('receiver_id' => $user->id);
         $move = Movements::where(['sn' => $sn])
-        ->where('sender_id', '>', 0)
         ->where($where)
         ->first();
         if (!$move) {
